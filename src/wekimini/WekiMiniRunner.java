@@ -116,10 +116,10 @@ public final class WekiMiniRunner {
         wekinatorCurrentMainFrames.put(w, newC);
     }
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         /* Create and display the form */
         //WekiMiniRunner.isKadenze = (args.length != 0);
-        WekiMiniRunner.isKadenze = true; //KADENZE SET
+        WekiMiniRunner.isKadenze = false; //KADENZE SET
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
              UIManager.put("Slider.paintValue", false);
@@ -130,17 +130,28 @@ public final class WekiMiniRunner {
         }
         
         aboutBox.setKadenze(isKadenze);
-        //args.length == 0
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                if (WekiMiniRunner.isKadenze) {
-                     new KadenzePromptFrame().setVisible(true);
-                } else {
-                    KadenzeLogging.noLogging();
-                    WekiMiniRunner.getInstance().runNewProject();
+
+        for (int i = 0; i < args.length + 1; i++) {
+            if (args.length > 0 && i == args.length) break; 
+            final String projectPath = args.length > 0 ? args[i] : "";
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    if (WekiMiniRunner.isKadenze) {
+                         new KadenzePromptFrame().setVisible(true);
+                    } else {
+                        KadenzeLogging.noLogging();
+                        if (args.length == 0) WekiMiniRunner.getInstance().runNewProject();
+                        else {
+                            try {
+                                WekiMiniRunner.getInstance().runFromFile(projectPath);
+                            } catch(Exception e) {
+                                logger.log(Level.SEVERE, "Error opening project \"" + projectPath + "\"");
+                            }
+                        }
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     public int numRunningProjects() {
@@ -211,7 +222,8 @@ public final class WekiMiniRunner {
         Wekinator w = WekinatorSaver.loadWekinatorFromFile(fileLocation);
         MainGUI mg = w.getMainGUI();
         mg.setVisible(true);
-        mg.showOSCReceiverWindow();
+        // mg.showOSCReceiverWindow();
+        w.getOSCReceiver().startListening();
         wekinatorCurrentMainFrames.put(w, mg);
         mg.addWindowListener(wl);
         w.addCloseListener(new ChangeListener() {
