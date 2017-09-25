@@ -60,10 +60,10 @@ public final class WekiMiniRunner {
                 oldWekinator.getOSCReceiver().stopListening();
             }
         }
-        
+
         //Start OSC listening for newest one
         w.getOSCReceiver().startListening();
-        
+
         //Start running newest one
         if (w.getLearningManager().getLearningType() == LearningManager.LearningType.SUPERVISED_LEARNING) {
             WekinatorSupervisedLearningController supervisedController = w.getLearningManager().getSupervisedLearningManager().getSupervisedLearningController();
@@ -79,24 +79,24 @@ public final class WekiMiniRunner {
             } else {
                 w.getStatusUpdateCenter().warn(this, "Tried to run automatically but cannot in this state.");
             }
-        } 
+        }
         w.getMainGUI().setPerformanceMode(true);
-        
+
         if (options == NewProjectOptions.CLOSECURRENT) {
             if (oldWekinator != null) {
                 oldWekinator.getMainGUI().dispose();
                 oldWekinator.close(); //Do I do this or something else?
             }
-            
+
         }
     }
-    
+
     public enum NewProjectOptions {CLOSECURRENT, STOPCURRENTLISTENING, KEEPCURRENTRUNNING};
-    
+
     public static int generateNextID() {
         return nextID++;
     }
-    
+
     public static WekiMiniRunner getInstance() {
         if (ref == null) {
             ref = new WekiMiniRunner();
@@ -120,7 +120,7 @@ public final class WekiMiniRunner {
         // create application properties with default
         Properties applicationProps = new Properties(defaultProps);
 
-        // now load properties 
+        // now load properties
         // from last invocation
         in = new FileInputStream("appProperties");
         applicationProps.load(in);
@@ -140,7 +140,7 @@ public final class WekiMiniRunner {
          System.out.println("NOT WORKING");
          Logger.getLogger(WekiMiniRunner.class.getName()).log(Level.SEVERE, null, ex);
          }
-        
+
          try {
          Util.readPropertyTest();
          } catch (IOException ex) {
@@ -162,7 +162,7 @@ public final class WekiMiniRunner {
         wekinatorCurrentMainFrames.put(w, newC);
     }
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         /* Create and display the form */
         //WekiMiniRunner.isKadenze = (args.length != 0);
         WekiMiniRunner.isKadenze = false; //KADENZE SET
@@ -174,19 +174,30 @@ public final class WekiMiniRunner {
         } catch (Exception ex) {
             Logger.getLogger(WekiMiniRunner.class.getName()).log(Level.WARNING, null, ex);
         }
-        
+
         aboutBox.setKadenze(isKadenze);
-        //args.length == 0
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                if (WekiMiniRunner.isKadenze) {
-                     new KadenzePromptFrame().setVisible(true);
-                } else {
-                    KadenzeLogging.noLogging();
-                    WekiMiniRunner.getInstance().runNewProject();
+
+        for (int i = 0; i < args.length + 1; i++) {
+            if (args.length > 0 && i == args.length) break;
+            final String projectPath = args.length > 0 ? args[i] : "";
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    if (WekiMiniRunner.isKadenze) {
+                         new KadenzePromptFrame().setVisible(true);
+                    } else {
+                        KadenzeLogging.noLogging();
+                        if (args.length == 0) WekiMiniRunner.getInstance().runNewProject();
+                        else {
+                            try {
+                                WekiMiniRunner.getInstance().runFromFile(projectPath);
+                            } catch(Exception e) {
+                                logger.log(Level.SEVERE, "Error opening project \"" + projectPath + "\"");
+                            }
+                        }
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     public int numRunningProjects() {
@@ -257,9 +268,8 @@ public final class WekiMiniRunner {
         Wekinator w = WekinatorSaver.loadWekinatorFromFile(fileLocation);
         MainGUI mg = w.getMainGUI();
         mg.setVisible(true);
-        if (showOSCWindow) {
-            mg.showOSCReceiverWindow();
-        }
+        // mg.showOSCReceiverWindow();
+        w.getOSCReceiver().startListening();
         wekinatorCurrentMainFrames.put(w, mg);
         mg.addWindowListener(wl);
         w.addCloseListener(new ChangeListener() {
@@ -318,7 +328,7 @@ public final class WekiMiniRunner {
     // General quit handler; fed to the OSXAdapter as the method to call when a system quit event occurs
     // A quit event is triggered by Cmd-Q, selecting Quit from the application or Dock menu, or logging out
     public boolean quitNicely() {
-        
+
         int option = JOptionPane.showConfirmDialog(null, "Are you sure you want to quit?", "Quit Wekinator?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, myIcon);
         if (option == JOptionPane.YES_OPTION) {
             quitWithoutPrompt();
@@ -331,7 +341,7 @@ public final class WekiMiniRunner {
         //Notice that each Wekinator must do its own shutdown of OSC, logging, etc. separately (this is universal shutdown)
         LoggingManager.closeUniversalLogs();
         KadenzeLogging.getLogger().closeLog();
-        
+
         if (!wekinatorCurrentMainFrames.isEmpty()) {
             Wekinator[] stillOpen = wekinatorCurrentMainFrames.keySet().toArray(new Wekinator[0]);
             for (int i = 0; i < stillOpen.length; i++) {
@@ -343,7 +353,7 @@ public final class WekiMiniRunner {
              w.close();
              }  */
         }
-       
+
 
         System.exit(0);
     }
