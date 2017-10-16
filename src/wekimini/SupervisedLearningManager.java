@@ -82,24 +82,24 @@ public class SupervisedLearningManager implements ConnectsInputsToOutputs {
     //Listeners for new output added
     private final List<OutputAddedListener> outputAddedListeners;
 
-    private boolean computeDistribution = false;
+    private boolean computeDistribution = true;
 
     /**
      * Get the value of computeDistribution
      *
      * @return the value of computeDistribution
      */
-    /*public boolean isComputeDistribution() {
+    public boolean isComputeDistribution() {
      return computeDistribution;
-     } */
+     }
     /**
      * Set the value of computeDistribution
      *
      * @param computeDistribution new value of computeDistribution
      */
-    /* public void setComputeDistribution(boolean computeDistribution) {
+     public void setComputeDistribution(boolean computeDistribution) {
      this.computeDistribution = computeDistribution;
-     } */
+     }
     boolean isLegalTrainingValue(int whichOutput, float value) {
         return getPaths().get(whichOutput).getOSCOutput().isLegalTrainingValue(value);
     }
@@ -240,7 +240,7 @@ public class SupervisedLearningManager implements ConnectsInputsToOutputs {
         paths.add(newPath);
         setModelBuilderForPath(mb, newOutputIndex);
 
-        //Without this, paths will think that examples have changed since their training    
+        //Without this, paths will think that examples have changed since their training
         notifyPathsOfDatasetChange = false;
         w.getDataManager().newOutputAdded(newOutputIndex);
         notifyPathsOfDatasetChange = true;
@@ -337,12 +337,12 @@ public class SupervisedLearningManager implements ConnectsInputsToOutputs {
         this.recordingRound = newRound;
         propertyChangeSupport.firePropertyChange(PROP_RECORDINGROUND, oldRecordingRound, this.recordingRound);
     }
-    
+
     public void incrementRecordingRound() {
         int oldRecordingRound = this.recordingRound;
         this.recordingRound++;
         propertyChangeSupport.firePropertyChange(PROP_RECORDINGROUND, oldRecordingRound, this.recordingRound);
-    
+
     }
 
     public void startRecording() {
@@ -651,7 +651,7 @@ public class SupervisedLearningManager implements ConnectsInputsToOutputs {
             KadenzeLogging.getLogger().logModelBuilderUpdated(w, p.getModelBuilder(), i);
         }
 
-        //Without this, paths will think that examples have changed since their training    
+        //Without this, paths will think that examples have changed since their training
         notifyPathsOfDatasetChange = false;
         w.getDataManager().initialize(inputNames, w.getOutputManager().getOutputGroup(), data);
         notifyPathsOfDatasetChange = true;
@@ -907,23 +907,23 @@ public class SupervisedLearningManager implements ConnectsInputsToOutputs {
 
     public void addToTraining(double[] inputs, double[] outputs, boolean[] inputMask, boolean[] outputMask) {
         /*double[] trainingOutputs = new double[outputs.length];
-        
+
          for (int i = 0; i < outputs.length; i++) {
          if (recordingMask[i]) {
-                
+
          }
          } */
         setNumExamplesThisRound(numExamplesThisRound + 1);
         w.getDataManager().addToTraining(inputs, outputs, inputMask, outputMask, recordingRound);
     }
 
-    
+
     public void addToTraining(double[] inputs, double[] outputs, boolean[] recordingMask) {
         /*double[] trainingOutputs = new double[outputs.length];
-        
+
          for (int i = 0; i < outputs.length; i++) {
          if (recordingMask[i]) {
-                
+
          }
          } */
         setNumExamplesThisRound(numExamplesThisRound + 1);
@@ -1047,7 +1047,7 @@ public class SupervisedLearningManager implements ConnectsInputsToOutputs {
 
     public void buildAll() {
         KadenzeLogging.getLogger().logEvent(w, KadenzeLogger.KEvent.TRAIN_START);
-        //Launch training threads & get notified ...  
+        //Launch training threads & get notified ...
         synchronized (this) {
             List<Instances> data = new ArrayList<>(paths.size());
             for (Path p : paths) {
@@ -1138,7 +1138,7 @@ public class SupervisedLearningManager implements ConnectsInputsToOutputs {
      }
 
      KadenzeLogging.getLogger().logPathUpdated(w, which, p.getOSCOutput(), newOutput, p.getModelBuilder(), newModelBuilder, p.getSelectedInputs(), selectedInputNames);
-        
+
      final Path newP;
      if (newOutput != null) {
      w.getOutputManager().updateOutput(newOutput, p.getOSCOutput()); //this triggers change in data manager
@@ -1146,7 +1146,7 @@ public class SupervisedLearningManager implements ConnectsInputsToOutputs {
      newP.setNumExamples(p.getNumExamples());
      newP.setRecordEnabled(p.isRecordEnabled());
      newP.setRunEnabled(p.isRunEnabled());
-            
+
      //TODO: Remove old property listeners!!
      p.removeListeners();
      PropertyChangeListener pChange = new PropertyChangeListener() {
@@ -1162,7 +1162,7 @@ public class SupervisedLearningManager implements ConnectsInputsToOutputs {
      changePathInputsOnRetrain((Path) e.getSource());
      }
      });
-            
+
      if (newModelBuilder != null) {
      newP.inheritModel(p);
      newP.setModelBuilder(newModelBuilder); //automatically indicates that re-training needed
@@ -1190,7 +1190,7 @@ public class SupervisedLearningManager implements ConnectsInputsToOutputs {
 
      //Finally: Only do this when path object has changed:
      if (newOutput != null) {
-     //Update path here, then fire change 
+     //Update path here, then fire change
      paths.remove(p);
      paths.add(which, newP);
      pathsToOutputIndices.remove(p);

@@ -1,7 +1,7 @@
 # wekimini
 This is the "mini" version of the new Wekinator, first released Spring 2015.
 
-All code by Rebecca Fiebrink, except for included libraries (see licenses) and 
+All code by Rebecca Fiebrink, except for included libraries (see licenses) and
 WeakListenerSupport.java (see header for full attribution).
 
 www.wekinator.org
@@ -11,7 +11,7 @@ www.wekinator.org
 Make sure you have Java, Java SDK, and Ant installed, then:
 
 ```
-ant -f build.xml -Dplatforms.JDK_1.7.home="%JAVA_HOME%"
+ant -f build.xml -Dplatforms.JDK_1.7.home="/Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home"
 ```
 
 ## Running

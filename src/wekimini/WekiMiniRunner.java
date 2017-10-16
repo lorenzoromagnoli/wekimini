@@ -189,7 +189,7 @@ public final class WekiMiniRunner {
                         if (args.length == 0) WekiMiniRunner.getInstance().runNewProject();
                         else {
                             try {
-                                WekiMiniRunner.getInstance().runFromFile(projectPath);
+                                WekiMiniRunner.getInstance().runFromFile(projectPath,true);
                             } catch(Exception e) {
                                 logger.log(Level.SEVERE, "Error opening project \"" + projectPath + "\"");
                             }
